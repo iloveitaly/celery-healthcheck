@@ -1,12 +1,5 @@
-import logging
-import os
-
-logging.basicConfig(
-    level=os.environ.get("LOG_LEVEL", "INFO").upper(),
-)
-
-logger = logging.getLogger(__name__)
+from . import HealthCheckServer
 
 
-def main():
-    logger.info("Hello, Logs!")
+def register(celery_app):
+    celery_app.steps["worker"].add(HealthCheckServer)
