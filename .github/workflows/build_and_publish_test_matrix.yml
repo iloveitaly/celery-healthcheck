@@ -29,7 +29,6 @@ jobs:
       - uses: jdx/mise-action@v2
       - run: mise use python@${{ matrix.python-version }}
       - uses: iloveitaly/github-action-direnv-load-and-mask@master
-      - run: docker compose up -d --wait
       - run: uv sync
       - name: Make sure the CLI runs properly
         run: uv run ${{ github.event.repository.name }} --help
