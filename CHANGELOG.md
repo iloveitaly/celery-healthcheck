@@ -1,4 +1,13 @@
-## 0.1.1 (2025-04-01)
+## [0.1.2](https://github.com/iloveitaly/celery-healthcheck/compare/v0.1.1...v0.1.2) (2025-06-25)
+
+
+### Bug Fixes
+
+* return JSONResponse with proper status for celery health ([7145d0e](https://github.com/iloveitaly/celery-healthcheck/commit/7145d0eeeee80b3b795d249aedb125916519dbe0))
+
+
+
+## [0.1.1](https://github.com/iloveitaly/celery-healthcheck/compare/bab9210809baa244ab53a9d7177f906a2ff4bd30...v0.1.1) (2025-04-01)
 
 
 ### Bug Fixes
