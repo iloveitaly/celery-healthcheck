@@ -3,6 +3,7 @@ import threading
 import uvicorn
 from celery import bootsteps
 from fastapi import FastAPI
+from fastapi.responses import JSONResponse
 
 app = FastAPI()
 
@@ -10,6 +11,7 @@ app = FastAPI()
 class HealthCheckServer(bootsteps.StartStopStep):
     def __init__(self, worker, **kwargs):
         self.worker = worker
+
         self.app = app
         self.thread = None
 
@@ -18,7 +20,15 @@ class HealthCheckServer(bootsteps.StartStopStep):
         async def celery_ping():
             insp = worker.app.control.inspect()
             result = insp.ping()
-            return {"status": "ok" if result else "error", "result": result}
+
+            if result:
+                return JSONResponse(
+                    content={"status": "ok", "result": result}, status_code=200
+                )
+            else:
+                return JSONResponse(
+                    content={"status": "error", "result": result}, status_code=503
+                )
 
         def run_server():
             uvicorn.run(self.app, host="0.0.0.0", port=9000)
