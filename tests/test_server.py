@@ -1,7 +1,7 @@
 """Test the health check server."""
 
 import pytest
-from unittest.mock import Mock
+from unittest.mock import Mock, patch
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
 
@@ -47,26 +47,10 @@ def test_health_check_healthy_workers(health_server, mock_worker, test_client):
     }
     mock_worker.app.control.inspect.return_value = mock_inspect
     
-    # Register the route using the same logic as the actual implementation
-    def create_endpoint():
-        from fastapi.responses import JSONResponse
-        
-        @health_server.app.get("/")
-        async def celery_ping():
-            insp = mock_worker.app.control.inspect()
-            result = insp.ping()
-            if result:
-                return JSONResponse(
-                    content={"status": "ok", "result": result},
-                    status_code=200
-                )
-            else:
-                return JSONResponse(
-                    content={"status": "error", "result": result},
-                    status_code=503
-                )
-    
-    create_endpoint()
+    # Mock uvicorn.run to prevent actual server startup
+    with patch('celery_healthcheck.server.uvicorn.run'):
+        # Call the actual start method to register the route
+        health_server.start(mock_worker)
     
     # Make request to health check endpoint
     response = test_client.get("/")
@@ -87,26 +71,10 @@ def test_health_check_no_workers_responding(health_server, mock_worker, test_cli
     mock_inspect.ping.return_value = None
     mock_worker.app.control.inspect.return_value = mock_inspect
     
-    # Register the route using the same logic as the actual implementation
-    def create_endpoint():
-        from fastapi.responses import JSONResponse
-        
-        @health_server.app.get("/")
-        async def celery_ping():
-            insp = mock_worker.app.control.inspect()
-            result = insp.ping()
-            if result:
-                return JSONResponse(
-                    content={"status": "ok", "result": result},
-                    status_code=200
-                )
-            else:
-                return JSONResponse(
-                    content={"status": "error", "result": result},
-                    status_code=503
-                )
-    
-    create_endpoint()
+    # Mock uvicorn.run to prevent actual server startup
+    with patch('celery_healthcheck.server.uvicorn.run'):
+        # Call the actual start method to register the route
+        health_server.start(mock_worker)
     
     # Make request to health check endpoint
     response = test_client.get("/")
@@ -124,26 +92,10 @@ def test_health_check_empty_worker_response(health_server, mock_worker, test_cli
     mock_inspect.ping.return_value = {}
     mock_worker.app.control.inspect.return_value = mock_inspect
     
-    # Register the route using the same logic as the actual implementation
-    def create_endpoint():
-        from fastapi.responses import JSONResponse
-        
-        @health_server.app.get("/")
-        async def celery_ping():
-            insp = mock_worker.app.control.inspect()
-            result = insp.ping()
-            if result:
-                return JSONResponse(
-                    content={"status": "ok", "result": result},
-                    status_code=200
-                )
-            else:
-                return JSONResponse(
-                    content={"status": "error", "result": result},
-                    status_code=503
-                )
-    
-    create_endpoint()
+    # Mock uvicorn.run to prevent actual server startup
+    with patch('celery_healthcheck.server.uvicorn.run'):
+        # Call the actual start method to register the route
+        health_server.start(mock_worker)
     
     # Make request to health check endpoint
     response = test_client.get("/")
@@ -167,3 +119,19 @@ def test_health_server_stop_method(health_server, mock_worker):
     """Test that stop method exists and can be called."""
     # Should not raise any exceptions
     health_server.stop(mock_worker)
+
+
+def test_register_function():
+    """Test the register function adds HealthCheckServer to celery app steps."""
+    from celery_healthcheck import register
+    
+    # Mock celery app
+    mock_celery_app = Mock()
+    mock_celery_app.steps = {"worker": Mock()}
+    mock_celery_app.steps["worker"].add = Mock()
+    
+    # Call register function
+    register(mock_celery_app)
+    
+    # Assert HealthCheckServer was added to worker steps
+    mock_celery_app.steps["worker"].add.assert_called_once_with(HealthCheckServer)
