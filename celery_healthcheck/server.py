@@ -37,7 +37,7 @@ class HealthCheckServer(bootsteps.StartStopStep):
         @self.app.get("/")
         async def celery_ping():
             insp = parent.app.control.inspect(
-                destination=parent.hostname, timeout=self.healthcheck_ping_timeout
+                destination=[parent.hostname], timeout=self.healthcheck_ping_timeout
             )
             result = insp.ping()
 
