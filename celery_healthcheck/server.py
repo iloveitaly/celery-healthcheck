@@ -1,3 +1,4 @@
+import logging
 import threading
 
 import uvicorn
@@ -7,6 +8,7 @@ from fastapi import FastAPI, status
 from fastapi.responses import JSONResponse
 
 app = FastAPI()
+logger = logging.getLogger("celery.ext.healthcheck")
 
 HEALTHCHECK_DEFAULT_PORT = 9000
 HEALTHCHECK_DEFAULT_PING_TIMEOUT = 2.0
@@ -61,6 +63,8 @@ class HealthCheckServer(bootsteps.StartStopStep):
 
         self.thread = threading.Thread(target=run_server, daemon=True)
         self.thread.start()
+
+        logger.info(f"Health check server started on port {self.healthcheck_port}")
 
     def stop(self, parent: WorkController):
         pass
