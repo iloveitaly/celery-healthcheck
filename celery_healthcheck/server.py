@@ -15,7 +15,6 @@ HEALTHCHECK_DEFAULT_PING_TIMEOUT = 2.0
 
 
 class HealthCheckServer(bootsteps.StartStopStep):
-
     def __init__(self, parent: WorkController, **kwargs):
         self.thread = None
 
@@ -35,7 +34,6 @@ class HealthCheckServer(bootsteps.StartStopStep):
         )
 
     def start(self, parent: WorkController):
-
         @self.app.get("/")
         async def celery_ping():
             insp = parent.app.control.inspect(
