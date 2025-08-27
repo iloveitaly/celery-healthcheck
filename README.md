@@ -31,9 +31,12 @@ app.config_from_object('myapp.celeryconfig')
 
 # Register the health check server
 celery_healthcheck.register(app)
+```
 
-# Now start your worker as usual
-# celery -A myapp worker -l info
+Now start your worker as usual
+
+```sh
+celery -A myapp worker -l info
 ```
 
 ## How It Works
