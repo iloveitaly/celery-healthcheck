@@ -1,6 +1,6 @@
 [project]
 name = "celery-healthcheck"
-version = "0.1.2"
+version = "0.2.0"
 description = "A lightweight HTTP health check server for Celery workers, designed to work with cloud platforms that only support TCP-based health probes"
 keywords = [
     "celery",

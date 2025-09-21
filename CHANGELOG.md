@@ -1,3 +1,12 @@
+# [0.2.0](https://github.com/iloveitaly/celery-healthcheck/compare/v0.1.2...v0.2.0) (2025-09-21)
+
+
+### Features
+
+* healthcheck self worker only ([#14](https://github.com/iloveitaly/celery-healthcheck/issues/14)) ([233196b](https://github.com/iloveitaly/celery-healthcheck/commit/233196b725fed47adb6cf85b11af5e385e6ba9ef))
+
+
+
 ## [0.1.2](https://github.com/iloveitaly/celery-healthcheck/compare/v0.1.1...v0.1.2) (2025-06-25)
 
 
