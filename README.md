@@ -10,6 +10,8 @@ When deploying Celery workers to cloud platforms like Azure, you need a way to v
 
 `celery-healthcheck` spins up a small FastAPI server within each Celery worker that exposes an HTTP endpoint to check the worker's health status. This allows cloud platforms to perform health checks via HTTP requests rather than command execution.
 
+Importantly, the ping-based healthcheck reports whether the worker is connected to the broker and responsive. However, it does not guarantee that the worker is processing tasks successfully nor does it indicate a problem with the Celery worker itself, as the ping can fail for reasons like the broker being unavailable. It is not recommended to autoheal the Celery worker based on the healthcheck due to the noise inherent in this signal.
+
 ## Installation
 
 ```bash
@@ -29,9 +31,12 @@ app.config_from_object('myapp.celeryconfig')
 
 # Register the health check server
 celery_healthcheck.register(app)
+```
 
-# Now start your worker as usual
-# celery -A myapp worker -l info
+Now start your worker as usual
+
+```sh
+celery -A myapp worker -l info
 ```
 
 ## How It Works
@@ -41,7 +46,7 @@ The health check server:
 1. Embeds a FastAPI application inside your Celery worker
 2. Runs on port 9000 by default (configurable)
 3. Exposes an HTTP endpoint (`GET /`) that:
-   - Uses Celery's inspect API to ping the worker
+   - Uses Celery's inspect API to ping the current worker only
    - Returns a JSON response with status and result
 
 ## API Endpoints
@@ -51,12 +56,20 @@ The health check server:
 Pings the Celery worker and returns its status.
 
 **Response:**
+
 ```json
 {
   "status": "ok",  // or "error" if worker doesn't respond
   "result": { ... } // Raw response from Celery's ping command
 }
 ```
+
+## Configuration
+
+The health check app can be configured via the main celery app it is registered on.
+
+- `healthcheck_port`: The port on which the health check server will listen (default: 9000)
+- `healthcheck_ping_timeout`: The timeout for the ping command to the worker (default: 2.0 seconds)
 
 ## Azure Configuration
 
@@ -74,3 +87,17 @@ MIT
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
+
+### Development tasks
+
+Run tests
+
+```sh
+uv run pytest
+```
+
+Format
+
+```sh
+uvx ruff format
+```

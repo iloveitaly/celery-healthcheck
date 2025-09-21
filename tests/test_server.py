@@ -14,6 +14,8 @@ def mock_worker():
     worker = Mock()
     worker.app = Mock()
     worker.app.control = Mock()
+    worker.app.conf = object()
+    worker.hostname = "celery@hostname"
     return worker
 
 
@@ -37,48 +39,46 @@ def test_client(fresh_app):
     return TestClient(fresh_app)
 
 
-def test_health_check_healthy_workers(health_server, mock_worker, test_client):
-    """Test health check endpoint when workers are responding (healthy)."""
+def test_health_check_healthy_worker(health_server, mock_worker, test_client):
+    """Test health check endpoint when worker is responding (healthy)."""
     # Mock the inspect ping to return worker responses
     mock_inspect = Mock()
     mock_inspect.ping.return_value = {
-        "worker1@hostname": {"ok": "pong"},
-        "worker2@hostname": {"ok": "pong"}
+        "celery@hostname": {"ok": "pong"},
     }
     mock_worker.app.control.inspect.return_value = mock_inspect
-    
+
     # Mock uvicorn.run to prevent actual server startup
-    with patch('celery_healthcheck.server.uvicorn.run'):
+    with patch("celery_healthcheck.server.uvicorn.run"):
         # Call the actual start method to register the route
         health_server.start(mock_worker)
-    
+
     # Make request to health check endpoint
     response = test_client.get("/")
-    
+
     # Assert healthy response
     assert response.status_code == 200
     assert response.json()["status"] == "ok"
     assert response.json()["result"] == {
-        "worker1@hostname": {"ok": "pong"},
-        "worker2@hostname": {"ok": "pong"}
+        "celery@hostname": {"ok": "pong"},
     }
 
 
-def test_health_check_no_workers_responding(health_server, mock_worker, test_client):
-    """Test health check endpoint when no workers are responding (unhealthy)."""
+def test_health_check_worker_not_responding(health_server, mock_worker, test_client):
+    """Test health check endpoint when the worker is not responding (unhealthy)."""
     # Mock the inspect ping to return None (no workers responding)
     mock_inspect = Mock()
     mock_inspect.ping.return_value = None
     mock_worker.app.control.inspect.return_value = mock_inspect
-    
+
     # Mock uvicorn.run to prevent actual server startup
-    with patch('celery_healthcheck.server.uvicorn.run'):
+    with patch("celery_healthcheck.server.uvicorn.run"):
         # Call the actual start method to register the route
         health_server.start(mock_worker)
-    
+
     # Make request to health check endpoint
     response = test_client.get("/")
-    
+
     # Assert unhealthy response
     assert response.status_code == 503
     assert response.json()["status"] == "error"
@@ -86,20 +86,20 @@ def test_health_check_no_workers_responding(health_server, mock_worker, test_cli
 
 
 def test_health_check_empty_worker_response(health_server, mock_worker, test_client):
-    """Test health check endpoint when workers return empty response (unhealthy)."""
-    # Mock the inspect ping to return empty dict (no workers responding)
+    """Test health check endpoint when the worker returns empty response (unhealthy)."""
+    # Mock the inspect ping to return empty dict (worker not responding)
     mock_inspect = Mock()
     mock_inspect.ping.return_value = {}
     mock_worker.app.control.inspect.return_value = mock_inspect
-    
+
     # Mock uvicorn.run to prevent actual server startup
-    with patch('celery_healthcheck.server.uvicorn.run'):
+    with patch("celery_healthcheck.server.uvicorn.run"):
         # Call the actual start method to register the route
         health_server.start(mock_worker)
-    
+
     # Make request to health check endpoint
     response = test_client.get("/")
-    
+
     # Assert unhealthy response for empty result
     assert response.status_code == 503
     assert response.json()["status"] == "error"
@@ -109,8 +109,7 @@ def test_health_check_empty_worker_response(health_server, mock_worker, test_cli
 def test_health_server_initialization(mock_worker, fresh_app):
     """Test HealthCheckServer initialization."""
     server = HealthCheckServer(mock_worker)
-    
-    assert server.worker == mock_worker
+
     assert server.app is not None  # App should be set (either global or fresh)
     assert server.thread is None
 
@@ -124,14 +123,14 @@ def test_health_server_stop_method(health_server, mock_worker):
 def test_register_function():
     """Test the register function adds HealthCheckServer to celery app steps."""
     from celery_healthcheck import register
-    
+
     # Mock celery app
     mock_celery_app = Mock()
     mock_celery_app.steps = {"worker": Mock()}
     mock_celery_app.steps["worker"].add = Mock()
-    
+
     # Call register function
     register(mock_celery_app)
-    
+
     # Assert HealthCheckServer was added to worker steps
     mock_celery_app.steps["worker"].add.assert_called_once_with(HealthCheckServer)
