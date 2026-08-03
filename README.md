@@ -71,6 +71,50 @@ The health check app can be configured via the main celery app it is registered 
 - `healthcheck_port`: The port on which the health check server will listen (default: 9000)
 - `healthcheck_ping_timeout`: The timeout for the ping command to the worker (default: 2.0 seconds)
 
+## Beat Health Check
+
+`celery_healthcheck.register(app)` also wires up a liveness probe for `celery beat`. No changes to how you start beat are required — no custom `--scheduler` flag, no scheduler subclass. It works by hooking Celery's `beat_init` signal and patching the `tick()` method on whichever scheduler instance beat actually constructs, so it works identically with the stock scheduler, [django-celery-beat](https://github.com/celery/django-celery-beat), [redbeat](https://github.com/sibson/redbeat), or any custom scheduler.
+
+```python
+from celery import Celery
+import celery_healthcheck
+
+app = Celery('myapp')
+app.config_from_object('myapp.celeryconfig')
+
+celery_healthcheck.register(app)
+```
+
+```sh
+celery -A myapp beat -l info
+```
+
+### Why a tick heartbeat instead of a pidfile check
+
+A common approach is checking beat's `--pidfile` for freshness, but Celery only writes that file once at startup as an "already running" lock — it is never touched again, so a staleness check on it can't detect beat hanging or deadlocking after startup, which is the actual failure mode a liveness probe needs to catch. This library instead records a timestamp every time the scheduler's `tick()` method actually runs, so the healthcheck reflects whether beat is still actively scheduling tasks.
+
+### GET / (Beat)
+
+Reports whether beat has ticked recently.
+
+**Response:**
+
+```json
+{
+  "status": "ok",           // or "error"
+  "last_tick_age": 4.2,     // seconds since the last tick
+  "max_tick_age": 610.0     // staleness threshold currently in effect
+}
+```
+
+### Beat Configuration
+
+- `healthcheck_beat_port`: The port on which the beat health check server will listen (default: 9001 — distinct from the worker's 9000, so an embedded `celery worker -B` process can run both without a conflict)
+- `healthcheck_beat_max_tick_age`: Explicit override for the staleness threshold, in seconds. If unset, it's derived from the scheduler's own `max_interval` instead (see below).
+- `healthcheck_beat_tick_age_multiplier`: Multiplier applied to the scheduler's `max_interval` when deriving the default threshold (default: 2.0)
+
+**Important:** `tick()` legitimately sleeps up to the scheduler's `max_interval` between calls when nothing is due — stock Celery defaults this to 300 seconds, while `django-celery-beat` and similar backends are typically much shorter. Setting `healthcheck_beat_max_tick_age` below your scheduler's `max_interval` will cause false-positive failures on a healthy beat process. The default (`max_interval * healthcheck_beat_tick_age_multiplier + 10s` grace period) is derived automatically per-scheduler so this shouldn't need tuning in most setups.
+
 ## Azure Configuration
 
 When configuring Azure health probes:
