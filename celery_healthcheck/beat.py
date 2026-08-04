@@ -43,14 +43,12 @@ def _get_max_tick_age():
 
 
 def _resolve_max_tick_age(conf, scheduler):
-    """Derive the staleness threshold from the scheduler's own max_interval.
+    """Determine the staleness threshold from the scheduler's own max_interval.
 
-    tick() legitimately sleeps up to max_interval between calls when nothing
+    tick() sleeps up to max_interval between calls when nothing
     is due, so the threshold must be comfortably larger than that or a
-    healthy beat process will fail the probe. max_interval varies widely by
-    scheduler backend (e.g. stock Celery defaults to 300s, while
-    django-celery-beat / redbeat are typically much shorter), so this is
-    derived rather than hardcoded.
+    It is necessary to calculate the max_interval as it can vary
+    depending on the scheduler.
     """
     explicit = getattr(conf, "healthcheck_beat_max_tick_age", None)
     if explicit:
