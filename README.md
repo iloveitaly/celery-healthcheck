@@ -113,7 +113,7 @@ Reports whether beat has ticked recently.
 - `healthcheck_beat_max_tick_age`: Explicit override for the staleness threshold, in seconds. If unset, it's derived from the scheduler's own `max_interval` instead (see below).
 - `healthcheck_beat_tick_age_multiplier`: Multiplier applied to the scheduler's `max_interval` when deriving the default threshold (default: 2.0)
 
-> [!NOTE]
+> [!WARNING]
 > `tick()` sleeps up to the scheduler's `max_interval` between calls when nothing is due — stock Celery defaults this to 300 seconds, while `django-celery-beat` and similar backends are typically much shorter. Setting `healthcheck_beat_max_tick_age` below your scheduler's `max_interval` will cause false-positive failures on a healthy beat process. The default (`max_interval * healthcheck_beat_tick_age_multiplier + 10s` grace period) is derived automatically per-scheduler so this shouldn't need tuning in most setups.
 
 ## Azure Configuration
