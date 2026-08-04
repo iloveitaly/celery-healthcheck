@@ -1,9 +1,3 @@
-# [Unreleased]
-
-### Features
-
-* Added support for celery beat healthcheck
-
 # [0.2.0](https://github.com/iloveitaly/celery-healthcheck/compare/v0.1.2...v0.2.0) (2025-09-21)
 
 
