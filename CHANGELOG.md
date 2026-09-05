@@ -1,3 +1,12 @@
+# [0.3.0](https://github.com/iloveitaly/celery-healthcheck/compare/v0.2.0...v0.3.0) (2026-09-05)
+
+
+### Features
+
+* Add support for celery beat ([#44](https://github.com/iloveitaly/celery-healthcheck/issues/44)) ([3b6db97](https://github.com/iloveitaly/celery-healthcheck/commit/3b6db9760b7f1a0237c8e45ae2cbaaa82aa9d82d))
+
+
+
 # [0.2.0](https://github.com/iloveitaly/celery-healthcheck/compare/v0.1.2...v0.2.0) (2025-09-21)
 
 
