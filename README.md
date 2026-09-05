@@ -26,8 +26,8 @@ Add the health check server to your Celery application:
 from celery import Celery
 import celery_healthcheck
 
-app = Celery('myapp')
-app.config_from_object('myapp.celeryconfig')
+app = Celery("myapp")
+app.config_from_object("myapp.celeryconfig")
 
 # Register the health check server
 celery_healthcheck.register(app)
@@ -83,8 +83,8 @@ This method ensures that the liveness probe reflects whether beat is still activ
 from celery import Celery
 import celery_healthcheck
 
-app = Celery('myapp')
-app.config_from_object('myapp.celeryconfig')
+app = Celery("myapp")
+app.config_from_object("myapp.celeryconfig")
 
 celery_healthcheck.register(app)
 ```

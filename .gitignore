@@ -127,3 +127,11 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+# ai stuff
+.cursor/settings.local.json
+.claude/settings.local.json
+!/.cursor/environment.json
+
+# i like having temporary files specified locally vs globally
+tmp/
