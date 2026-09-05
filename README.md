@@ -1,3 +1,8 @@
+[![Release Notes](https://img.shields.io/github/release/iloveitaly/celery-healthcheck)](https://github.com/iloveitaly/celery-healthcheck/releases)
+[![Downloads](https://static.pepy.tech/badge/celery-healthcheck/month)](https://pepy.tech/project/celery-healthcheck)
+![GitHub CI Status](https://github.com/iloveitaly/celery-healthcheck/actions/workflows/build_and_publish.yml/badge.svg)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+
 # Celery Healthcheck
 
 A lightweight HTTP health check server for Celery workers, designed to work with cloud platforms like Azure that only support TCP-based health probes.
@@ -125,24 +130,19 @@ When configuring Azure health probes:
 3. Use the path "/"
 4. A 200 OK response indicates the worker is healthy
 
-## License
-
-MIT
-
 ## Contributing
 
 Contributions are welcome! Please feel free to submit a Pull Request.
 
 ### Development tasks
 
-Run tests
-
 ```sh
-uv run pytest
+just test
+just lint
 ```
 
-Format
+## [MIT License](LICENSE.md)
 
-```sh
-uvx ruff format
-```
+---
+
+*This project was created from [iloveitaly/python-package-template](https://github.com/iloveitaly/python-package-template)*
