@@ -16,6 +16,13 @@
 
 
 
+## [0.3.1](https://github.com/iloveitaly/celery-healthcheck/compare/v0.3.0...v0.3.1) (2026-09-05)
+
+
+### Documentation
+
+* add status badges and update development instructions in README ([78a3c5c](https://github.com/iloveitaly/celery-healthcheck/commit/78a3c5cf0f357a77a4916c36a9fffe07e4ca9135))
+
 ## [0.1.2](https://github.com/iloveitaly/celery-healthcheck/compare/v0.1.1...v0.1.2) (2025-06-25)
 
 
@@ -34,6 +41,3 @@
 * circular import ([24fe4d1](https://github.com/iloveitaly/celery-healthcheck/commit/24fe4d19cc170a3de2f25a2774493a3ccece955e))
 * remove cli script ([06d6544](https://github.com/iloveitaly/celery-healthcheck/commit/06d6544eef0c575a6e566b6c6fb2c06ce68a8f20))
 * remove cli test ([e188243](https://github.com/iloveitaly/celery-healthcheck/commit/e188243064c7b86455e37dbbe0fc84a6aa975756))
-
-
-
